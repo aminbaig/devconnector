@@ -1,30 +1,30 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const mongoose = require('mongoose');
-const passport = require('passport');
+const mongoose = require("mongoose");
+const passport = require("passport");
 
 // Load Validation
-const validateProfileInput = require('../../validation/profile');
+const validateProfileInput = require("../../validation/profile");
 
 // Load Profile model
-const Profile = require('../../models/Profile');
+const Profile = require("../../models/Profile");
 
 // Load User model
-const User = require('../../models/User');
-const res = require('express/lib/response');
+const User = require("../../models/User");
+const res = require("express/lib/response");
 
-router.get('/test', (req, res) => res.json({ msg: 'Profile works' }));
+router.get("/test", (req, res) => res.json({ msg: "Profile works" }));
 
 router.get(
-  '/',
-  passport.authenticate('jwt', { session: false }),
+  "/",
+  passport.authenticate("jwt", { session: false }),
   (req, res) => {
     const errors = {};
     Profile.findOne({ user: req.user.id })
-      .populate('user', ['name', 'avatar'])
+      .populate("user", ["name", "avatar"])
       .then((profile) => {
         if (!profile) {
-          errors.noprofile = 'There is no profile for this user';
+          errors.noprofile = "There is no profile for this user";
           return res.status(404).json(errors);
         }
         res.json(profile);
@@ -33,29 +33,29 @@ router.get(
   }
 );
 
-router.get('/all', (req, res) => {
+router.get("/all", (req, res) => {
   const errors = {};
   Profile.find()
-    .populate('user', ['name', 'avatar'])
+    .populate("user", ["name", "avatar"])
     .then((profiles) => {
       if (!profiles) {
-        errors.noprofile = 'There are no profiles';
+        errors.noprofile = "There are no profiles";
         return res.status(404).json(errors);
       }
       res.json(profiles);
     })
     .catch((err) => {
-      res.status(404).json({ profile: 'There are no profiles' });
+      res.status(404).json({ profile: "There are no profiles" });
     });
 });
 
-router.get('/handle/:handle', (req, res) => {
+router.get("/handle/:handle", (req, res) => {
   const errors = {};
   Profile.findOne({ handle: req.params.handle })
-    .populate('user', ['name', 'avatar'])
+    .populate("user", ["name", "avatar"])
     .then((profile) => {
       if (!profile) {
-        errors.noprofile = 'There is no profile for this user';
+        errors.noprofile = "There is no profile for this user";
         return res.status(404).json(errors);
       }
       res.json(profile);
@@ -63,25 +63,25 @@ router.get('/handle/:handle', (req, res) => {
     .catch((err) => res.status(404).json(err));
 });
 
-router.get('/user/:user_id', (req, res) => {
+router.get("/user/:user_id", (req, res) => {
   const errors = {};
   Profile.findOne({ user: req.params.user_id })
-    .populate('user', ['name', 'avatar'])
+    .populate("user", ["name", "avatar"])
     .then((profile) => {
       if (!profile) {
-        errors.noprofile = 'There is no profile for this user';
+        errors.noprofile = "There is no profile for this user";
         return res.status(404).json(errors);
       }
       res.json(profile);
     })
     .catch((err) =>
-      res.status(404).json({ profile: 'There is no profile for this user' })
+      res.status(404).json({ profile: "There is no profile for this user" })
     );
 });
 
 router.post(
-  '/',
-  passport.authenticate('jwt', { session: false }),
+  "/",
+  passport.authenticate("jwt", { session: false }),
   (req, res) => {
     const { errors, isValid } = validateProfileInput(req.body);
     // Check validation
@@ -102,8 +102,8 @@ router.post(
       profileFields.githubusername = req.body.githubusername;
 
     // Skills - need to split into an array
-    if (typeof req.body.skills !== 'undefined') {
-      profileFields.skills = req.body.skills.split(',');
+    if (typeof req.body.skills !== "undefined") {
+      profileFields.skills = req.body.skills.split(",");
     }
 
     // Social
@@ -113,7 +113,7 @@ router.post(
     if (req.body.twitter) profileFields.social.twitter = req.body.twitter;
     if (req.body.linkedin) profileFields.social.linkedin = req.body.linkedin;
     if (req.body.facebook) profileFields.social.facebook = req.body.facebook;
-    if (req.body.instagrm) profileFields.social.instagrm = req.body.instagrm;
+    if (req.body.instagram) profileFields.social.instagram = req.body.instagram;
 
     Profile.findOne({ user: req.user.id }).then((profile) => {
       if (profile) {
@@ -129,7 +129,7 @@ router.post(
         // Check if handle exists
         Profile.findOne({ handle: profileFields.handle }).then((profile) => {
           if (profile) {
-            errors.handle = 'That handle already exists';
+            errors.handle = "That handle already exists";
             res.status(400).json(errors);
           }
           //save profile if there is handle
